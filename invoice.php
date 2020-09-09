@@ -60,27 +60,27 @@ if (isset($_GET["action"])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles/cart.css">
+    <link rel="stylesheet" href="styles/viewstorage.css">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <title>Invoice</title>
 </head>
 
-<script>
-    function setUI() {
-        //do something
-    }
-</script>
-
-<body onload="javascript:setUI()">
+<body>
+    <form method="POST" action="scripts/dash.php">
+        <div class="d-flex justify-content-left">
+            <div class="buttonback">
+                <input type="submit" name="back" value="Dashboard">
+            </div>
+        </div>
+    </form>
     <?php
     $companyid = $_SESSION['companyid'];
     $result = $dbHandler->selectProductsForCompany($companyid);
+    echo "<div style='padding: 50px' class='row'>";
     foreach ($result as $row) :
-        echo "<div class='=col-md-3'>";
         echo "<form method='POST'>";
-        echo "<div class='customespec' >";
         echo "<h4 class='text-info'> Name: " . $row['name'] . "</h4>";
         echo "<h4 class='text-danger'>Price: " . $row['price'] . "</h4>";
         echo "<h4 class='text-danger'>Quantity on storage: " . $row['quantity'] . "</h4>";
@@ -92,10 +92,9 @@ if (isset($_GET["action"])) {
         echo "<input type='hidden' name='hidden_quantity' value='" . $row['quantity'] . "'/>";
         echo "<input type='submit' name='addtocart' style='margin-top: 5px;' class='btn btn-success' value='Add to Cart'/>";
 
-        echo "</div>";
         echo "</form>";
-        echo "</div>";
-    endforeach
+    endforeach;
+    echo "</div>";
     ?>
     <div style="clear:both">
         <br />
