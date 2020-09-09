@@ -9,16 +9,12 @@ $dbHandler = new DbHandler();
 $companyid = $_SESSION['companyid'];
 $productsmemo = $dbHandler->selectProductsForCompany($companyid);
 
-//$cookiememo = null;
-
 if (isset($_POST['addtocart'])) {
     if (isset($_COOKIE["shoppingcart"])) {
         $cookiedata = stripslashes($_COOKIE["shoppingcart"]);
         $cartdata = json_decode($cookiedata, true);
-        //$cookiememo = $cartdata;
     } else {
         $cartdata = array();
-        //$cookiememo = $cartdata;
     }
 
     $itemidlist = array_column($cartdata, 'item_id');
@@ -30,11 +26,13 @@ if (isset($_POST['addtocart'])) {
             if ($cartdata[$keys]["item_id"] == $_POST["hidden_id"]) {
                 $cartdata[$keys]["item_quantity"] = $cartdata[$keys]["item_quantity"] + $_POST["quantitytoadd"];
 
-                //update cart
-                $id = $cartdata[$keys]["item_id"];
-                $temp = $_POST['hidden_quantity'];
-                $temp = $temp - 1.00;
-                $dbHandler->executeUpdateQuery("UPDATE products SET quantity=$temp WHERE id=$id");
+                if ($cartdata[$keys]["item_type"] == "Product") {
+                    //update cart
+                    $id = $cartdata[$keys]["item_id"];
+                    $temp = $_POST['hidden_quantity'];
+                    $temp = $temp - 1.00;
+                    $dbHandler->executeUpdateQuery("UPDATE products SET quantity=$temp WHERE id=$id");
+                }
             }
         endforeach;
     } else {
@@ -43,6 +41,7 @@ if (isset($_POST['addtocart'])) {
             'item_name' => $_POST['hidden_name'],
             'item_price' => $_POST['hidden_price'],
             'item_quantitydb' => $_POST['hidden_quantity'],
+            'item_type' => $_POST['hidden_type'],
             'item_quantity' => $_POST['quantitytoadd']
         );
         $cartdata[] = $items;
@@ -51,11 +50,13 @@ if (isset($_POST['addtocart'])) {
         foreach ($cartdata as $keys => $values) :
             if ($cartdata[$keys]["item_id"] == $_POST["hidden_id"]) {
 
-                //update cart
-                $id = $cartdata[$keys]["item_id"];
-                $temp = $_POST['hidden_quantity'];
-                $temp = $temp - 1.00;
-                $dbHandler->executeUpdateQuery("UPDATE products SET quantity=$temp WHERE id=$id");
+                if ($cartdata[$keys]["item_type"] == "Product") {
+                    //update cart
+                    $id = $cartdata[$keys]["item_id"];
+                    $temp = $_POST['hidden_quantity'];
+                    $temp = $temp - 1.00;
+                    $dbHandler->executeUpdateQuery("UPDATE products SET quantity=$temp WHERE id=$id");
+                }
             }
         endforeach;
     }
@@ -70,15 +71,22 @@ if (isset($_GET["action"])) {
     if ($_GET["action"] == "delete") {
         $cookiedata = stripslashes($_COOKIE['shoppingcart']);
         $cartdata = json_decode($cookiedata, true);
-        //echo $_GET["id"];
         foreach ($cartdata as $keys => $values) :
             if ($cartdata[$keys]['item_id'] == $_GET["id"]) {
+                if ($cartdata[$keys]["item_type"] == "Product") {
+                    //update products
+                    $id = $cartdata[$keys]["item_id"];
 
+                    //$temp = $cartdata[$keys]["item_quantity"]; //this is
 
-                //update products
-                $id = $cartdata[$keys]["item_id"];
-                $temp = $cartdata[$keys]["item_quantity"];
-                $dbHandler->executeUpdateQuery("UPDATE products SET quantity=$temp WHERE id=$id");
+                    $temp2 = $values["item_quantitydb"];
+                    //$temp3=(string)$temp2;
+
+                    //$price = $temp+$temp2;
+
+                    $dbHandler->executeUpdateQuery("UPDATE products SET quantity=$temp2 WHERE id=$id");
+                    //$dbHandler->executeUpdateQuery("UPDATE products SET name='$temp3' WHERE id=$id");
+                }
 
                 unset($cartdata[$keys]);
                 $itemdata = json_encode($cartdata);
@@ -119,16 +127,22 @@ if (isset($_GET["action"])) {
         echo "<form method='POST'>";
         echo "<h4 class='text-info'> Name: " . $row['name'] . "</h4>";
         echo "<h4 class='text-danger'>Price: " . $row['price'] . "</h4>";
-        echo "<h4 class='text-danger'>Quantity on storage: " . $row['quantity'] . "</h4>";
-        echo "<input readonly class='form-control' type ='text' name='quantitytoadd' value='1'/>";
+        echo "<label class='text-danger'>Quantity left:</label>";
+        echo "<input readonly name='quantityonstorage' class='form-control' value='" . $row['quantity'] . "'</input>";
+        echo "<input readonly class='form-control' type ='hidden' name='quantitytoadd' value='1'/>";
 
         echo "<input type='hidden' name='hidden_id' value='" . $row['id'] . "'/>";
         echo "<input type='hidden' name='hidden_name' value='" . $row['name'] . "'/>";
         echo "<input type='hidden' name='hidden_price' value='" . $row['price'] . "'/>";
+        echo "<input type='hidden' name='hidden_type' value='" . $row['type'] . "'/>";
         echo "<input type='hidden' name='hidden_quantity' value='" . $row['quantity'] . "'/>";
 
-        if ((int)$row['quantity'] == 0) {
-            echo "<input type='submit' name='addtocart' style='margin-top: 5px;' class='btn btn-success' value='Add to Cart'disabled/>";
+        if ($row['type'] == "Product") {
+            if ((int)$row['quantity'] == 0) {
+                echo "<input type='submit' name='addtocart' style='margin-top: 5px;' class='btn btn-success' value='Add to Cart'disabled/>";
+            } else {
+                echo "<input type='submit' name='addtocart' style='margin-top: 5px;' class='btn btn-success' value='Add to Cart'/>";
+            }
         } else {
             echo "<input type='submit' name='addtocart' style='margin-top: 5px;' class='btn btn-success' value='Add to Cart'/>";
         }
@@ -163,11 +177,9 @@ if (isset($_GET["action"])) {
                     echo '<td>' . number_format($values["item_quantity"] * $values["item_price"], 2) . '</td>';
 
                     echo '<td><a href="invoice.php?action=delete&id=' . $values["item_id"] . '"><span class="text-danger">Remove</span></a></td>';
-                    //$_SESSION["cartitemid"]= $values["item_id"];
                     echo '</tr>';
                     $total = $total + ($values["item_quantity"] * $values["item_price"]);
                 endforeach;
-                //echo $_GET["id"];
             } else {
                 echo '<tr> <td colspan="5" align="center">No Item in Cart </td> </tr>';
             }
@@ -178,9 +190,15 @@ if (isset($_GET["action"])) {
                 <td></td>
             </tr>
         </table>
-
     </div>
 
+    <form method="POST" action="scripts/receipt.php">
+        <div class="d-flex justify-content-left">
+            <div class="buttonback">
+                <input type="submit" name="proceed" value="Proceed">
+            </div>
+        </div>
+    </form>
 </body>
 
 </html>
