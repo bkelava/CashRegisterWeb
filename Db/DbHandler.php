@@ -165,4 +165,10 @@ class DbHandler
         $result = mysqli_fetch_array($row);
         return $result;
     }
+
+    public function updateProductQuantity($id, $quantity)
+    {
+        $query = "UPDATE products SET quantity=$quantity WHERE id=$id";
+        $this->executeUpdateQuery($query);
+    }
 }

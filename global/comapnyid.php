@@ -1,0 +1,3 @@
+<?php
+
+    $globalcompanyid=0;

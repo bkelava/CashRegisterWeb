@@ -55,6 +55,7 @@ $dbHandler = new DbHandler();
                             }
                         </script>
                         <?php
+                        //echo $_SESSION['companyid'];
                         $companyid = $_SESSION['companyid'];
                         $result = $dbHandler->selectProductsForCompany($companyid);
                         echo '<select id="selectionlist" name="productlist" class="form-control" onchange="javascript:selection()">';

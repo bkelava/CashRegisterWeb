@@ -5,20 +5,36 @@ require "./Db/DbHandler.php";
 use db\DbHandler;
 
 $dbHandler = new DbHandler();
+
+$companyid = $_SESSION['companyid'];
+$productsmemo = $dbHandler->selectProductsForCompany($companyid);
+
+//$cookiememo = null;
+
 if (isset($_POST['addtocart'])) {
     if (isset($_COOKIE["shoppingcart"])) {
         $cookiedata = stripslashes($_COOKIE["shoppingcart"]);
         $cartdata = json_decode($cookiedata, true);
+        //$cookiememo = $cartdata;
     } else {
         $cartdata = array();
+        //$cookiememo = $cartdata;
     }
 
     $itemidlist = array_column($cartdata, 'item_id');
 
     if (in_array($_POST["hidden_id"], $itemidlist)) {
+
+        //update cart
         foreach ($cartdata as $keys => $values) :
             if ($cartdata[$keys]["item_id"] == $_POST["hidden_id"]) {
                 $cartdata[$keys]["item_quantity"] = $cartdata[$keys]["item_quantity"] + $_POST["quantitytoadd"];
+
+                //update cart
+                $id = $cartdata[$keys]["item_id"];
+                $temp = $_POST['hidden_quantity'];
+                $temp = $temp - 1.00;
+                $dbHandler->executeUpdateQuery("UPDATE products SET quantity=$temp WHERE id=$id");
             }
         endforeach;
     } else {
@@ -30,6 +46,18 @@ if (isset($_POST['addtocart'])) {
             'item_quantity' => $_POST['quantitytoadd']
         );
         $cartdata[] = $items;
+
+        //update cart
+        foreach ($cartdata as $keys => $values) :
+            if ($cartdata[$keys]["item_id"] == $_POST["hidden_id"]) {
+
+                //update cart
+                $id = $cartdata[$keys]["item_id"];
+                $temp = $_POST['hidden_quantity'];
+                $temp = $temp - 1.00;
+                $dbHandler->executeUpdateQuery("UPDATE products SET quantity=$temp WHERE id=$id");
+            }
+        endforeach;
     }
 
     $itemdata = json_encode($cartdata);
@@ -37,13 +65,21 @@ if (isset($_POST['addtocart'])) {
     header('refresh:0; URL=./../invoice.php?success=1');
 }
 
+
 if (isset($_GET["action"])) {
     if ($_GET["action"] == "delete") {
         $cookiedata = stripslashes($_COOKIE['shoppingcart']);
         $cartdata = json_decode($cookiedata, true);
-        echo $_GET["id"];
+        //echo $_GET["id"];
         foreach ($cartdata as $keys => $values) :
             if ($cartdata[$keys]['item_id'] == $_GET["id"]) {
+
+
+                //update products
+                $id = $cartdata[$keys]["item_id"];
+                $temp = $cartdata[$keys]["item_quantity"];
+                $dbHandler->executeUpdateQuery("UPDATE products SET quantity=$temp WHERE id=$id");
+
                 unset($cartdata[$keys]);
                 $itemdata = json_encode($cartdata);
                 setcookie("shoppingcart", $itemdata, time() + (86400 * 30));
@@ -90,7 +126,13 @@ if (isset($_GET["action"])) {
         echo "<input type='hidden' name='hidden_name' value='" . $row['name'] . "'/>";
         echo "<input type='hidden' name='hidden_price' value='" . $row['price'] . "'/>";
         echo "<input type='hidden' name='hidden_quantity' value='" . $row['quantity'] . "'/>";
-        echo "<input type='submit' name='addtocart' style='margin-top: 5px;' class='btn btn-success' value='Add to Cart'/>";
+
+        if ((int)$row['quantity'] == 0) {
+            echo "<input type='submit' name='addtocart' style='margin-top: 5px;' class='btn btn-success' value='Add to Cart'disabled/>";
+        } else {
+            echo "<input type='submit' name='addtocart' style='margin-top: 5px;' class='btn btn-success' value='Add to Cart'/>";
+        }
+
 
         echo "</form>";
     endforeach;
