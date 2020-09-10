@@ -56,6 +56,10 @@ $result = $dbHandler->selectProductById((int)$productid);
                 <div class="d-flex justify-content-center">
                     <input type="submit" class="form-control" name="updateproduct" value="Update product">
                 </div>
+                <div class="d-flex justify-content-center">
+                    <?php  $_SESSION['productid'] = $productid; ?>
+                    <input type="submit" class="form-control" name="deleteproduct" value="Delete product">
+                </div>
             </div>
         </form>
     </div>

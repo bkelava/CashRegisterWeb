@@ -27,6 +27,7 @@ if (isset($_POST['companyinfo'])) {
 }
 
 if (isset($_POST['back'])) {
+
     $companyid = $_SESSION['companyid'];
     $_SESSION['companyid'] = $companyid;
     header('refresh:0; URL=./../dashboard.php');
@@ -106,4 +107,20 @@ if (isset($_POST['proceed'])) {
     //setcookie("shoppingcart", "", time() - 3600);
 
     header('refresh:0; URL=./../dashboard.php');
+}
+
+if(isset($_POST['deleteproduct']))
+{
+    $productid = $_SESSION['productid'];
+    $dbHandler->deleteProduct($productid);
+
+
+}
+
+if (isset($_POST['logout']))
+{
+    session_destroy();
+    setcookie("shoppingcart", "", time() - 3600);
+
+    header('refresh: 0; URL=./../index.php');
 }

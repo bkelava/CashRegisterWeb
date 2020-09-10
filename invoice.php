@@ -167,7 +167,7 @@ if (isset($_GET["action"])) {
         <br />
         <div class="w-50 p-3">
             <div id="orderdetails" class="w-75 p-5">
-                <h3>Order Details -  Receipt <?php echo (string)$lastreceipt ?></h3>
+                <h3>Order Details - Receipt <?php echo (string)$lastreceipt ?></h3>
                 <table class="table table-bordered">
                     <tr>
                         <th width="40%">Item Name</th>
@@ -195,12 +195,12 @@ if (isset($_GET["action"])) {
                         endforeach;
                     } else {
                         echo '<tr> <td colspan="5" align="center">No Item in Cart </td> </tr>';
+                        $total = 0;
                     }
                     ?>
                     <tr>
                         <td colspan="3">Total </td>
-                        <td align="right"><?php
-                        if ($total = null) { echo number_format(0, 2); } else { echo number_format($total, 2);} ?> </td>
+                        <td id="some"><?php echo number_format($total, 2); ?> </td>
                         <td></td>
                     </tr>
                 </table>
@@ -213,7 +213,19 @@ if (isset($_GET["action"])) {
     <form method="POST" action="scripts/dash.php">
         <div class="d-flex justify-content-left">
             <div class="buttonback">
-                <input type="submit" name="proceed" value="Proceed" onclick="javascript:createInvoice()">
+                <input id="proceed" type="submit" name="proceed" value="Proceed" onclick="javascript:createInvoice()">
+                <script type="text/javascript">
+                    var number = "<?php echo $total ?>";
+                    var convert = parseInt(number);
+                    if (convert == 0)
+                    {
+                        document.getElementById("proceed").disabled = true;
+                    }
+                    else 
+                    {
+                        document.getElementById("proceed").disabled = false;
+                    }
+                </script>
             </div>
         </div>
     </form>
@@ -255,7 +267,7 @@ if (isset($_GET["action"])) {
                     //          this allow the insertion of new lines after html
                     pdf.save('Test.pdf');
                 }, margins);
-                document.cookie = "shoppingcart=; expires = Thu, 01 Jan 1970 00:00:00 GMT"
+            document.cookie = "shoppingcart=; expires = Thu, 01 Jan 1970 00:00:00 GMT"
         }
     </script>
 </body>

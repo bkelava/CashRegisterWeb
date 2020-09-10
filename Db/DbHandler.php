@@ -195,4 +195,10 @@ class DbHandler
         $query = "UPDATE receipts SET counter=$number WHERE companyid=$companyid";
         $this->executeUpdateQuery($query);
     }
+
+    public function deleteProduct($productid)
+    {
+        $query = "DELETE FROM products WHERE id=$productid";
+        $this->executeUpdateQuery($query);
+    }
 }

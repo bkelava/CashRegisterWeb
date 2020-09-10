@@ -35,12 +35,16 @@
     <form method="POST" action="scripts/dash.php">
         <div class="d-flex justify-content-center">
             <input type="submit" name="companyinfo" value="Company Informations">
+            <input type="submit" name="invoice" value="Create invoice">
+
+        </div>
+        <div class="d-flex justify-content-center">
+            <!-- tbc <input type="submit" name="invoices" value="All invoices"> -->
             <input type="submit" name="storage" value="Add to storage">
             <input type="submit" name="addtostorage" value="View storage">
         </div>
         <div class="d-flex justify-content-center">
-            <input type="submit" name="invoices" value="All invoices">
-            <input type="submit" name="invoice" value="Create invoice">
+            <input type="submit" name="logout" value="Log Out">
         </div>
     </form>
 
