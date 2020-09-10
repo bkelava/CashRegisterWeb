@@ -2,16 +2,19 @@
 
 require_once __DIR__ . "./../Db/DbHandler.php";
 require_once __DIR__ . "./../Db/DbItems/user.php";
+require_once __DIR__ . "./../Db/DbItems/receipts.php";
 
 use db\DbHandler;
 use db\Company;
 use db\Product;
+use db\Receipt;
 
 session_start();
 
 $dbHandler = new DbHandler();
 
 if (isset($_POST['invoice'])) {
+
     $companyid = $_SESSION['companyid'];
     $_SESSION['companyid'] = $companyid;
     header('refresh:0; URL=./../invoice.php');
@@ -90,6 +93,17 @@ if (isset($_POST['updateproduct'])) {
     $product = new Product($productname, "", $productquantity, $productid, "");
 
     $dbHandler->updateProduct($product, $productid);
+
+    header('refresh:0; URL=./../dashboard.php');
+}
+
+if (isset($_POST['proceed'])) {
+    $companyid = $_SESSION['passid'];
+    $lastreceipt = $_SESSION['passlastreceipt'];
+
+    $dbHandler->updateReceiptNumber($companyid, $lastreceipt+1);
+
+    //setcookie("shoppingcart", "", time() - 3600);
 
     header('refresh:0; URL=./../dashboard.php');
 }

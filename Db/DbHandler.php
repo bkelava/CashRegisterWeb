@@ -171,4 +171,28 @@ class DbHandler
         $query = "UPDATE products SET quantity=$quantity WHERE id=$id";
         $this->executeUpdateQuery($query);
     }
+
+    public function selectLastReceipt($companyid)
+    {
+        $query = "SELECT counter FROM receipts WHERE companyid=$companyid";
+        $result = $this->executeSelectQuery($query);
+
+        $rowcount = mysqli_num_rows($result);
+        
+        if ($rowcount <= 0) {
+            $newquery = "INSERT INTO receipts (counter, companyid) VALUES (0, $companyid)";
+            $this->executeInsertQuery($newquery);
+            return 1;
+        }
+        else {
+            $row = mysqli_fetch_array($result);
+            return $row[0];
+        }
+    }
+
+    public function updateReceiptNumber($companyid, $number) 
+    {
+        $query = "UPDATE receipts SET counter=$number WHERE companyid=$companyid";
+        $this->executeUpdateQuery($query);
+    }
 }
