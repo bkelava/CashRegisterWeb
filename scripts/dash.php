@@ -124,23 +124,3 @@ if (isset($_POST['logout']))
 
     header('refresh: 0; URL=./../index.php');
 }
-
-if (isset($_POST['resetpassword']))
-{
-    $email = $_POST['mail'];
-
-    if ($dbHandler->checkEmail($email))
-    {
-        echo "<script type='text/javascript'>alert('--- REDIRECTING ---');</script>";
-
-        $_SESSION['email'] = $email;
-
-        header('refresh: 0; URL=./../resetmessage.php');
-    }
-    else
-    {
-        echo "<script type='text/javascript'>alert('E-MAIL NOT FOUND, REDIRECTING...');</script>";
-
-        header('refresh: 0; URL=./../index.php');
-    }
-}

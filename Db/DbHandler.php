@@ -214,6 +214,12 @@ class DbHandler
         {
             return false;
         }
+    }
 
+    public function updateUserPassword($email, $password)
+    {
+        $hashpassword = md5($password);
+        $query = "UPDATE users SET password='$hashpassword' WHERE email='$email'";
+        $this->executeUpdateQuery($query);
     }
 }

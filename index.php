@@ -26,9 +26,9 @@
           <input type="submit" class="fadeIn third" name="login_user" value="Log In">
         </form>
 
-        <div id="formFooter" class="fadeIn fourth">
+        <!--<div id="formFooter" class="fadeIn fourth">
           <a class="underlineHover" href="resetpassword.php">Forgot Password?</a>
-        </div>
+        </div>-->
 
         <div id="formFooter" class="fadeIn fourth">
           <p>Dont have account? <a class="underlineHover" href="registration.php">Register now!</a></p>
