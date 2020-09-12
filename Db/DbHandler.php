@@ -201,4 +201,19 @@ class DbHandler
         $query = "DELETE FROM products WHERE id=$productid";
         $this->executeUpdateQuery($query);
     }
+
+    public function checkEmail($email) 
+    {
+        $query = ("SELECT * FROM users WHERE email='$email'");
+        $result = $this->executeSelectQuery($query);
+        if (mysqli_num_rows($result) > 0)
+        {
+            return true;
+        }
+        else 
+        {
+            return false;
+        }
+
+    }
 }
