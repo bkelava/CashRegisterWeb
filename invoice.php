@@ -27,6 +27,8 @@ $dbHandler = new DbHandler();
 $companyid = $_SESSION['companyid'];
 $productsmemo = $dbHandler->selectProductsForCompany($companyid);
 
+$companyinformation = $dbHandler->selectCompanyData($companyid);
+
 if (isset($_POST['addtocart'])) {
     if (isset($_COOKIE["shoppingcart"])) {
         $cookiedata = stripslashes($_COOKIE["shoppingcart"]);
@@ -174,7 +176,7 @@ if (isset($_GET["action"])) {
                         <th width="10%">Quantity</th>
                         <th width="20%">Price</th>
                         <th width="15%">Total</th>
-                        <th width="5%">Action</th>
+                        <th id="delact" width="5%">Action</th>
                     </tr>
                     <?php
                     if (isset($_COOKIE["shoppingcart"])) {
@@ -189,21 +191,29 @@ if (isset($_GET["action"])) {
 
                             echo '<td>' . number_format($values["item_quantity"] * $values["item_price"], 2) . '</td>';
 
-                            echo '<td><a href="invoice.php?action=delete&id=' . $values["item_id"] . '"><span class="text-danger">Remove</span></a></td>';
+                            echo '<td id="del"><a href="invoice.php?action=delete&id=' . $values["item_id"] . '"><span class="text-danger">Remove</span></a></td>';
                             echo '</tr>';
                             $total = $total + ($values["item_quantity"] * $values["item_price"]);
                         endforeach;
                     } else {
-                        echo '<tr> <td colspan="5" align="center">No Item in Cart </td> </tr>';
                         $total = 0;
+                        echo '<tr> <td colspan="5" align="center">No Item in Cart </td> </tr>';
                     }
                     ?>
-                    <tr>
+                    <!--<tr>
                         <td colspan="3">Total </td>
-                        <td id="some"><?php echo number_format($total, 2); ?> </td>
+                        <td><?php //echo number_format($total, 2); echo ""; echo "";
+                            ?> </td>
                         <td></td>
-                    </tr>
+                    </tr>-->
                 </table>
+                <div class="container-fluid">
+                    <div class="row justify-content-center">
+                        <div class="spinner-border" role="status">
+                            <h4>Order total: <?php echo number_format($total, 2); ?></h4>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -217,12 +227,9 @@ if (isset($_GET["action"])) {
                 <script type="text/javascript">
                     var number = "<?php echo $total ?>";
                     var convert = parseInt(number);
-                    if (convert == 0)
-                    {
+                    if (convert == 0) {
                         document.getElementById("proceed").disabled = true;
-                    }
-                    else 
-                    {
+                    } else {
                         document.getElementById("proceed").disabled = false;
                     }
                 </script>
@@ -232,6 +239,11 @@ if (isset($_GET["action"])) {
     <script type="text/javascript">
         function createInvoice() {
             var pdf = new jsPDF('p', 'pt', 'letter');
+
+            //removing action elements
+            document.getElementById("del").remove();
+            document.getElementById("delact").remove();
+
             // source can be HTML-formatted string, or a reference
             // to an actual DOM element from which the text will be scraped.
             source = $('#orderdetails')[0];
@@ -242,9 +254,9 @@ if (isset($_GET["action"])) {
             // (class, of compound) at this time.
             specialElementHandlers = {
                 // element with id of "bypass" - jQuery style selector
-                '#orderdetails': function(element, renderer) {
+                '#elementH': function(element, renderer) {
                     // true = "handled elsewhere, bypass text extraction"
-                    return true
+                    return false
                 }
             };
             margins = {
@@ -260,13 +272,20 @@ if (isset($_GET["action"])) {
                 margins.left, // x coord
                 margins.top, { // y coord
                     'width': margins.width, // max width of content on PDF
-                    'elementHandlers': specialElementHandlers
+                    'elementH': specialElementHandlers
                 },
                 function(dispose) {
                     // dispose: object with X, Y of the last line add to the PDF 
                     //          this allow the insertion of new lines after html
+                    pdf.setFontSize(12);
+                    pdf.text("<?php echo (string)$companyinformation['name'];?>", 14, 22);
+                    pdf.text("<?php echo "Addres: "; echo (string)$companyinformation['addres'];?>", 14, 34);
+                    pdf.text("<?php echo "City: "; echo (string)$companyinformation['citypostal'];?>", 14, 46);
+                    pdf.text("<?php echo "VAT: "; echo (string)$companyinformation['VAT'];?>", 14, 58);
+                    pdf.text("Date and time: <?php date_default_timezone_get(); $date = date('m/d/Y h:i:s a', time()); echo $date; ?>", 14, 70);
                     pdf.save('Test.pdf');
                 }, margins);
+
             document.cookie = "shoppingcart=; expires = Thu, 01 Jan 1970 00:00:00 GMT"
         }
     </script>

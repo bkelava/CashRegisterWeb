@@ -222,4 +222,11 @@ class DbHandler
         $query = "UPDATE users SET password='$hashpassword' WHERE email='$email'";
         $this->executeUpdateQuery($query);
     }
+
+    public function selectCompanyData($companyid) {
+        $query = "SELECT * FROM company WHERE id=$companyid";
+        $row= $this->executeSelectQuery($query);
+        $result = mysqli_fetch_array($row);
+        return $result;
+    }
 }
