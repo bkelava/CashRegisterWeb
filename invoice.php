@@ -200,12 +200,6 @@ if (isset($_GET["action"])) {
                         echo '<tr> <td colspan="5" align="center">No Item in Cart </td> </tr>';
                     }
                     ?>
-                    <!--<tr>
-                        <td colspan="3">Total </td>
-                        <td><?php //echo number_format($total, 2); echo ""; echo "";
-                            ?> </td>
-                        <td></td>
-                    </tr>-->
                 </table>
                 <div class="container-fluid">
                     <div class="row justify-content-center">

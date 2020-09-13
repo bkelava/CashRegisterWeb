@@ -16,4 +16,4 @@ class DbConfig
     const USER = "root";
     const PASS = "";
     const DB = "cashregister";
-}*/
+}/*

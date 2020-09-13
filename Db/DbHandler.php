@@ -29,6 +29,12 @@ class DbHandler
         }
     }
 
+    public function refresh() {
+        $this->connect();
+        mysqli_refresh($this->connection, MYSQLI_REFRESH_GRANT);
+        $this->disconnect();
+    }
+
     public function disconnect()
     {
         $this->connection->close();
@@ -180,7 +186,7 @@ class DbHandler
         $rowcount = mysqli_num_rows($result);
         
         if ($rowcount <= 0) {
-            $newquery = "INSERT INTO receipts (counter, companyid) VALUES (0, $companyid)";
+            $newquery = "INSERT INTO receipts (counter, companyid) VALUES (1, $companyid)";
             $this->executeInsertQuery($newquery);
             return 1;
         }

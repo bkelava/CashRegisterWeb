@@ -17,45 +17,35 @@ if (isset($_POST['login_user']))
     $password = $_POST['password'];
 
     $queryResult = $dbHandler->userExist($username);
-    //echo "OK";
 
     if ($queryResult) {
+
         $queryResult = $dbHandler->selectUserPassword($username);
 
         $hashpassword = md5($password);
 
         if (strcmp($queryResult, $hashpassword) == 0) {
 
-            $userId = $dbHandler->selectUserId($username);
-
-            $_SESSION['username'] = $username;
-            $_SESSION['userid'] = $userId;
-
-            $row = $dbHandler->selectCompanyByUserId($userId);
-            if($row == null) {
-                $company = new Company('Sample', 'Sample', 'Sample', 'Sample', (int)$userId);
-                $_SESSION['company'] = "Sample";
-                $dbHandler->insertIntoCompany($company);
-            }
-            $username = $_SESSION['username'];
             $userid = $dbHandler->selectUserId($username);
 
-            $_SESSION['company'] = $row['name'];
-            $company = $_SESSION['company'];
-            
-            $companyid=$dbHandler->selectCompanyIdByNameAndUser($company, (int)$userid);
-            $_SESSION['companyid'] = $companyid;
+            $result = $dbHandler->selectCompanyByUserid($userid);
+
+            $_SESSION['userid'] = $userid;
+            $_SESSION['companyid']=$result['id'];
+            $_SESSION['username']=$username;
+            $_SESSION['company'] =$result['name'];
+
             echo "<script type='text/javascript'>alert('LOG IN SUCCESSFULL!');</script>";
-            header('refresh:0; URL= ./../dashboard.php');
+            header('refresh:1; URL= ./../dashboard.php');
         }
         else {
             echo "<script type='text/javascript'>alert('INCORRECT PASSWORD!');</script>";
-            header('refresh:0; URL= ./../index.php');
+            header('refresh:1; URL= ./../index.php');
         }
     }
     else {
         echo "<script type='text/javascript'>alert('USER NOT FOUND!');</script>";
-        header('refresh:0; URL= ./../index.php');
+        header('refresh:1; URL= ./../index.php');
     }
 
 
